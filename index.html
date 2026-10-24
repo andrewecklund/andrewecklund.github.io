@@ -27,6 +27,8 @@ h1{font-size:clamp(1.9rem,8vw,2.5rem);font-weight:800;letter-spacing:-.01em}
 h2{font-size:1.3rem;font-weight:700}
 p{margin:0}
 [hidden]{display:none!important}
+.toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.lang{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 16px;font:inherit;font-weight:700;font-size:.9rem;cursor:pointer}
 .eyebrow{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .hero{display:flex;flex-direction:column;gap:14px}
 .offer{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -64,39 +66,39 @@ details[open] summary{margin-bottom:8px}
 <body>
 <main class="wrap">
   <header class="hero">
-    <p class="eyebrow">Referral rewards from Andrew</p>
+    <div class="toprow"><p class="eyebrow" data-t="eyebrow">Referral rewards from Andrew</p><button type="button" class="lang" id="langBtn" lang="es">Español</button></div>
     <h1 id="headline">Thanks for trusting me with your home. Want to get paid for it?</h1>
     <div class="offer">
-      <div class="tile"><span class="amt">$5</span><span class="what">for every person you text</span></div>
-      <div class="tile"><span class="amt">$200</span><span class="what">for every one who gets a system</span></div>
+      <div class="tile"><span class="amt">$5</span><span class="what" data-t="tile1">for every person you text</span></div>
+      <div class="tile"><span class="amt">$200</span><span class="what" data-t="tile2">for every one who gets a system</span></div>
     </div>
-    <p class="fine">Up to 5 people. That's up to $25 just for sending texts, plus $200 each time one of them gets a system installed.</p>
+    <p class="fine" data-t="fine1">Up to 5 people. That's up to $25 just for sending texts, plus $200 each time one of them gets a system installed.</p>
   </header>
 
   <section class="step" id="aboutYou" aria-label="About you">
-    <label for="me">Your first name<input id="me" autocomplete="given-name" placeholder="e.g. Sarah"></label>
+    <label for="me"><span data-t="meLabel">Your first name</span><input id="me" autocomplete="given-name" placeholder="e.g. Sarah"></label>
     <div id="typeBox">
-      <p style="font-weight:600;font-size:.9rem;margin-bottom:6px">What did Andrew do for you?</p>
+      <p style="font-weight:600;font-size:.9rem;margin-bottom:6px" data-t="typeQ">What did Andrew do for you?</p>
       <div class="seg" role="group" aria-label="New system or upgrade">
-        <button type="button" id="t-new" aria-pressed="true">New system</button>
-        <button type="button" id="t-up" aria-pressed="false">Upgraded my system</button>
+        <button type="button" id="t-new" aria-pressed="true" data-t="newSys">New system</button>
+        <button type="button" id="t-up" aria-pressed="false" data-t="upSys">Upgraded my system</button>
       </div>
     </div>
   </section>
 
   <section class="step" aria-labelledby="s2">
-    <h2 id="s2">Who should hear about it?</h2>
-    <p class="hint">Fill in a name and number, then tap the big button. Your Messages app opens with the text ready to go. Just hit send.</p>
+    <h2 id="s2" data-t="s2">Who should hear about it?</h2>
+    <p class="hint" data-t="hint">Fill in a name and number, then tap the big button. Your Messages app opens with the text ready to go. Just hit send.</p>
     <div id="friends" style="display:flex;flex-direction:column;gap:12px"></div>
-    <button type="button" class="add" id="addBtn">+ Add another person</button>
+    <button type="button" class="add" id="addBtn" data-t="add">+ Add another person</button>
   </section>
 
   <div class="tally" aria-live="polite">
-    <div><div style="font-weight:600">You've earned so far</div><div style="opacity:.85;font-size:.85rem" id="tallySub">Texts sent: 0 of 5</div></div>
+    <div><div style="font-weight:600" data-t="earned">You've earned so far</div><div style="opacity:.85;font-size:.85rem" id="tallySub">Texts sent: 0 of 5</div></div>
     <div class="big" id="tally">$0</div>
   </div>
 
-  <p class="fine">Andrew is notified automatically when you send each text. $5 is paid per person texted. $200 is paid after your referral's system is installed. Limit 5 people per customer.</p>
+  <p class="fine" data-t="fine2">Andrew is notified automatically when you send each text. $5 is paid per person texted. $200 is paid after your referral's system is installed. Limit 5 people per customer.</p>
 </main>
 
 <script>
@@ -108,6 +110,46 @@ const LEAD_ENDPOINT = "https://formsubmit.co/ajax/aecklund123@gmail.com";
 
 const MAX = 5;
 const CONNECTIONS = ["Friend","Family","Neighbor","Coworker","Church","Other"];
+const T = {
+  en:{
+    title:"Andrew's Referral Rewards", eyebrow:"Referral rewards from Andrew",
+    headline:"Thanks for trusting me with your home. Want to get paid for it?",
+    headlineName:n=>`${n}, thanks for trusting me with your home. Want to get paid for it?`,
+    tile1:"for every person you text", tile2:"for every one who gets a system",
+    fine1:"Up to 5 people. That's up to $25 just for sending texts, plus $200 each time one of them gets a system installed.",
+    meLabel:"Your first name", mePh:"e.g. Sarah", typeQ:"What did Andrew do for you?",
+    newSys:"New system", upSys:"Upgraded my system", s2:"Who should hear about it?",
+    hint:"Fill in a name and number, then tap the big button. Your Messages app opens with the text ready to go. Just hit send.",
+    add:"+ Add another person", earned:"You've earned so far", sent:(a,b)=>`Texts sent: ${a} of ${b}`,
+    fine2:"Andrew is notified automatically when you send each text. $5 is paid per person texted. $200 is paid after your referral's system is installed. Limit 5 people per customer.",
+    person:i=>`Person ${i}`, texted:" · texted ✓", remove:"Remove", name:"Their name", namePh:"First and last",
+    cell:"Their cell", conn:"How you know them", city:"City they live in", cityPh:"e.g. Maricopa",
+    go:n=>`Text ${n} now`, goOff:"Add their name and cell to text them", edit:"Edit the message", msg:"Message",
+    conns:{Friend:"Friend",Family:"Family",Neighbor:"Neighbor",Coworker:"Coworker",Church:"Church",Other:"Other"},
+    there:"there",
+    text:(first,up)=>`Hey ${first}, I just got my Vivint system ${up?"updated":"set up"} with Andrew. It looks like this: ${VIDEO_URL} I get a credit for sending you this text, but they give you a massive discount on it as well. He's asking if it's okay for him to shoot you some information. Cool if I pass him your number?`,
+    toggle:"Español", toggleLang:"es"
+  },
+  es:{
+    title:"Recompensas por referidos de Andrew", eyebrow:"Recompensas por referidos de Andrew",
+    headline:"Gracias por confiarme tu hogar. ¿Quieres ganar dinero con eso?",
+    headlineName:n=>`${n}, gracias por confiarme tu hogar. ¿Quieres ganar dinero con eso?`,
+    tile1:"por cada persona a la que le mandes mensaje", tile2:"por cada una que instale un sistema",
+    fine1:"Hasta 5 personas. Son hasta $25 solo por mandar mensajes, más $200 cada vez que a una de ellas le instalen un sistema.",
+    meLabel:"Tu nombre", mePh:"ej. Sara", typeQ:"¿Qué hizo Andrew por ti?",
+    newSys:"Sistema nuevo", upSys:"Actualicé mi sistema", s2:"¿Quién debería saber de esto?",
+    hint:"Escribe un nombre y un número, luego toca el botón grande. Tu app de Mensajes se abre con el mensaje listo. Solo dale enviar.",
+    add:"+ Agregar otra persona", earned:"Llevas ganado", sent:(a,b)=>`Mensajes enviados: ${a} de ${b}`,
+    fine2:"Andrew recibe un aviso automático cada vez que mandas un mensaje. Se paga $5 por cada persona a la que le mandes mensaje. Los $200 se pagan cuando le instalan el sistema a tu referido. Límite de 5 personas por cliente.",
+    person:i=>`Persona ${i}`, texted:" · enviado ✓", remove:"Quitar", name:"Su nombre", namePh:"Nombre y apellido",
+    cell:"Su celular", conn:"De dónde lo conoces", city:"Ciudad donde vive", cityPh:"ej. Maricopa",
+    go:n=>`Mándale mensaje a ${n}`, goOff:"Agrega su nombre y celular para mandarle mensaje", edit:"Editar el mensaje", msg:"Mensaje",
+    conns:{Friend:"Amigo/a",Family:"Familia",Neighbor:"Vecino/a",Coworker:"Compañero/a de trabajo",Church:"Iglesia",Other:"Otro"},
+    there:"",
+    text:(first,up)=>`Hola${first?" "+first:""}, acabo de ${up?"actualizar":"instalar"} mi sistema Vivint con Andrew. Así se ve: ${VIDEO_URL} A mí me dan un crédito por mandarte este mensaje, pero a ti también te dan un descuento enorme. Andrew pregunta si está bien mandarte un poco de información. ¿Le puedo pasar tu número?`,
+    toggle:"English", toggleLang:"en"
+  }
+};
 const ua = navigator.userAgent;
 const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
 const $ = id => document.getElementById(id);
@@ -115,7 +157,8 @@ const params = new URLSearchParams(location.search);
 // Short links: ?Sarah (new system) or ?Sarah-up (upgrade). Older ?c=Sarah&t=new links still work.
 const rawQ = decodeURIComponent(location.search.slice(1).replace(/\+/g," "));
 const shortForm = rawQ && !rawQ.includes("=");
-const shortMatch = shortForm ? rawQ.match(/^(.*?)(?:-(up|upgrade|new))?$/i) : null;
+const shortMatch = shortForm ? rawQ.match(/^(.*?)(?:-(up|upgrade|new))?(?:-(es|en))?$/i) : null;
+const preLang = shortMatch ? (shortMatch[3]||"").toLowerCase() : (params.get("l")||"").toLowerCase();
 const preName = shortMatch ? shortMatch[1].trim() : (params.get("c")||"").trim();
 const preType = shortMatch ? (shortMatch[2]||"new").toLowerCase() : (params.get("t")||"").toLowerCase();
 
@@ -125,6 +168,9 @@ try{ const s = JSON.parse(localStorage.getItem(KEY)||"null"); if(s && Array.isAr
 if(preName) state.me = preName;
 if(preType==="up"||preType==="upgrade") state.type="up"; else if(preType==="new") state.type="new";
 if(!state.friends.length) state.friends.push(blank());
+if(preLang==="es"||preLang==="en") state.lang = preLang;
+else if(state.lang!=="es" && state.lang!=="en") state.lang = /^es/i.test(navigator.language||"") ? "es" : "en";
+const L = () => T[state.lang] || T.en;
 
 function blank(){ return {name:"",conn:"Friend",phone:"",city:"",sent:false,logged:"",msg:"",edited:false}; }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
@@ -137,9 +183,7 @@ function smsHref(num, body){
 }
 
 function defaultMsg(f){
-  const first = firstName(f.name) || "there";
-  const did = state.type === "up" ? "updated" : "set up";
-  return `Hey ${first}, I just got my Vivint system ${did} with Andrew. It looks like this: ${VIDEO_URL} I get a credit for sending you this text, but they give you a massive discount on it as well. He's asking if it's okay for him to shoot you some information. Cool if I pass him your number?`;
+  return L().text(firstName(f.name) || L().there, state.type === "up");
 }
 
 function logLead(f){
@@ -151,7 +195,8 @@ function logLead(f){
     _template: "table", _captcha: "false",
     "Referral name": f.name.trim(), "Referral phone": f.phone.trim(),
     "Referral city": f.city.trim(), "Connection": f.conn,
-    "Customer name": state.me.trim(), "Customer type": state.type==="up" ? "Upgraded system" : "New system"
+    "Customer name": state.me.trim(), "Customer type": state.type==="up" ? "Upgraded system" : "New system",
+    "Language": state.lang==="es" ? "Spanish" : "English"
   };
   try{
     fetch(LEAD_ENDPOINT, {method:"POST", keepalive:true, headers:{"Content-Type":"application/json","Accept":"application/json"}, body:JSON.stringify(payload)}).catch(()=>{});
@@ -166,16 +211,17 @@ function renderFriends(){
     if(!f.edited) f.msg = defaultMsg(f);
     const card = document.createElement("div");
     card.className = "friend" + (f.sent ? " sent" : "");
+    const t = L();
     card.innerHTML = `
-      <div class="friendtop"><strong>Person ${i+1}${f.sent?" · texted ✓":""}</strong>${state.friends.length>1?`<button type="button" class="remove" data-rm="${i}">Remove</button>`:""}</div>
+      <div class="friendtop"><strong>${t.person(i+1)}${f.sent?t.texted:""}</strong>${state.friends.length>1?`<button type="button" class="remove" data-rm="${i}">${t.remove}</button>`:""}</div>
       <div class="grid2">
-        <label for="n${i}">Their name<input id="n${i}" data-k="name" data-i="${i}" autocomplete="off" placeholder="First and last"></label>
-        <label for="p${i}">Their cell<input id="p${i}" data-k="phone" data-i="${i}" type="tel" inputmode="tel" autocomplete="off" placeholder="480-555-0123"></label>
-        <label for="c${i}">How you know them<select id="c${i}" data-k="conn" data-i="${i}">${CONNECTIONS.map(c=>`<option ${c===f.conn?"selected":""}>${c}</option>`).join("")}</select></label>
-        <label for="l${i}">City they live in<input id="l${i}" data-k="city" data-i="${i}" autocomplete="off" placeholder="e.g. Maricopa"></label>
+        <label for="n${i}">${t.name}<input id="n${i}" data-k="name" data-i="${i}" autocomplete="off" placeholder="${t.namePh}"></label>
+        <label for="p${i}">${t.cell}<input id="p${i}" data-k="phone" data-i="${i}" type="tel" inputmode="tel" autocomplete="off" placeholder="480-555-0123"></label>
+        <label for="c${i}">${t.conn}<select id="c${i}" data-k="conn" data-i="${i}">${CONNECTIONS.map(c=>`<option value="${c}" ${c===f.conn?"selected":""}>${t.conns[c]}</option>`).join("")}</select></label>
+        <label for="l${i}">${t.city}<input id="l${i}" data-k="city" data-i="${i}" autocomplete="off" placeholder="${t.cityPh}"></label>
       </div>
-      <a class="btn" id="go${i}" data-go="${i}" href="#">Text them</a>
-      <details><summary>Edit the message</summary><textarea id="m${i}" data-k="msg" data-i="${i}" aria-label="Message"></textarea></details>`;
+      <a class="btn" id="go${i}" data-go="${i}" href="#"></a>
+      <details><summary>${t.edit}</summary><textarea id="m${i}" data-k="msg" data-i="${i}" aria-label="${t.msg}"></textarea></details>`;
     box.appendChild(card);
     card.querySelector(`#n${i}`).value = f.name;
     card.querySelector(`#p${i}`).value = f.phone;
@@ -192,12 +238,12 @@ function updateGo(i){
   const ok = ready(f);
   a.classList.toggle("off", !ok);
   a.href = ok ? smsHref(f.phone, f.msg) : "#";
-  a.textContent = ok ? `Text ${firstName(f.name)} now` : "Add their name and cell to text them";
+  a.textContent = ok ? L().go(firstName(f.name)) : L().goOff;
 }
 function renderTally(){
   const sent = state.friends.filter(f=>f.sent).length;
   $("tally").textContent = "$" + (sent*5);
-  $("tallySub").textContent = `Texts sent: ${sent} of ${MAX}`;
+  $("tallySub").textContent = L().sent(sent, MAX);
 }
 
 document.addEventListener("input", e=>{
@@ -228,9 +274,22 @@ $("addBtn").addEventListener("click", ()=>{ if(state.friends.length<MAX){ state.
 // Customer name + type from the link
 $("me").value = state.me;
 $("me").addEventListener("input", e=>{ state.me = e.target.value; save(); });
-if(preName){
-  $("headline").textContent = `${firstName(preName)}, thanks for trusting me with your home. Want to get paid for it?`;
+function applyLang(){
+  const t = L();
+  document.documentElement.lang = state.lang;
+  document.title = t.title;
+  document.querySelectorAll("[data-t]").forEach(el=>{ el.textContent = t[el.dataset.t]; });
+  $("headline").textContent = preName ? t.headlineName(firstName(preName)) : t.headline;
+  $("me").placeholder = t.mePh;
+  const b = $("langBtn"); b.textContent = t.toggle; b.lang = t.toggleLang;
+  b.setAttribute("aria-label", state.lang==="es" ? "Switch to English" : "Cambiar a español");
 }
+$("langBtn").addEventListener("click", ()=>{
+  state.lang = state.lang==="es" ? "en" : "es";
+  // Unedited messages switch language; ones the customer typed stay as written.
+  save(); applyLang(); renderFriends();
+});
+applyLang();
 if(preName && (preType==="new"||preType==="up"||preType==="upgrade")) $("aboutYou").hidden = true;
 else if(preName) $("me").closest("label").hidden = true;
 else if(preType) $("typeBox").hidden = true;

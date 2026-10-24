@@ -25,32 +25,50 @@ textarea{min-height:120px}
 .btn{display:flex;justify-content:center;padding:15px;border-radius:12px;font:inherit;font-weight:700;text-decoration:none;border:1px solid var(--brand);background:var(--brand);color:var(--brand-ink);width:100%}
 .btn.ghost{background:transparent;color:var(--brand)}
 .btn.off{opacity:.45;pointer-events:none}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.lang{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 16px;font:inherit;font-weight:700;font-size:.9rem}
 .hint{font-size:.85rem;color:var(--muted)}
 .toast{font-size:.85rem;color:var(--ok);font-weight:600;min-height:1.2em}
 </style>
 </head>
 <body>
 <main class="wrap">
-  <h1>Send a referral link</h1>
-  <p class="hint">For Andrew only. Fill this out right after an install and the customer's page opens with their name already on it.</p>
-  <label for="cn">Customer's name<input id="cn" placeholder="e.g. Sarah Jones" autocomplete="off"></label>
-  <label for="cp">Customer's cell<input id="cp" type="tel" inputmode="tel" placeholder="480-555-0123" autocomplete="off"></label>
+  <div class="top"><h1 data-t="h1">Send a referral link</h1><button type="button" class="lang" id="langBtn" lang="es">Español</button></div>
+  <p class="hint" data-t="hint">For Andrew only. Fill this out right after an install and the customer's page opens with their name already on it.</p>
+  <label for="cn"><span data-t="cn">Customer's name</span><input id="cn" placeholder="e.g. Sarah Jones" autocomplete="off"></label>
+  <label for="cp"><span data-t="cp">Customer's cell</span><input id="cp" type="tel" inputmode="tel" placeholder="480-555-0123" autocomplete="off"></label>
   <div class="seg" role="group" aria-label="Customer type">
-    <button type="button" id="tn" aria-pressed="true">New system</button>
-    <button type="button" id="tu" aria-pressed="false">Upgrade</button>
+    <button type="button" id="tn" aria-pressed="true" data-t="tn">New system</button>
+    <button type="button" id="tu" aria-pressed="false" data-t="tu">Upgrade</button>
   </div>
-  <label for="msg">Text to the customer<textarea id="msg"></textarea></label>
-  <a class="btn off" id="go" href="#">Text it to them</a>
-  <button type="button" class="btn ghost" id="copy">Copy text instead</button>
+  <label for="msg"><span data-t="msgL">Text to the customer</span><textarea id="msg"></textarea></label>
+  <a class="btn off" id="go" href="#" data-t="go">Text it to them</a>
+  <button type="button" class="btn ghost" id="copy" data-t="copy">Copy text instead</button>
   <p class="toast" id="toast"></p>
 </main>
 <script>
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-let type = "new", edited = false;
+let type = "new", edited = false, lang = "en";
+try{ if(localStorage.getItem("sendLang")==="es") lang = "es"; }catch(e){}
+const T = {
+  en:{h1:"Send a referral link", hint:"For Andrew only. Fill this out right after an install and the customer's page opens with their name already on it.",
+      cn:"Customer's name", cnPh:"e.g. Sarah Jones", cp:"Customer's cell", tn:"New system", tu:"Upgrade", msgL:"Text to the customer",
+      go:"Text it to them", copy:"Copy text instead", copied:"Copied.", hold:"Press and hold to copy.", toggle:"Español", toggleLang:"es", there:"there",
+      text:(n,l)=>`Hey ${n}, it's Andrew. Thanks again for going with Vivint! Here's that referral page I mentioned. $5 for every friend you text and $200 for every one who gets a system: ${l}`},
+  es:{h1:"Enviar link de referidos", hint:"Solo para Andrew. Llénalo justo después de una instalación y la página del cliente se abre en español con su nombre.",
+      cn:"Nombre del cliente", cnPh:"ej. Sara Jiménez", cp:"Celular del cliente", tn:"Sistema nuevo", tu:"Actualización", msgL:"Mensaje para el cliente",
+      go:"Mandárselo por mensaje", copy:"Copiar el mensaje", copied:"Copiado.", hold:"Mantén presionado para copiar.", toggle:"English", toggleLang:"en", there:"",
+      text:(n,l)=>`Hola${n?" "+n:""}, soy Andrew. ¡Gracias otra vez por escoger Vivint! Aquí está la página de referidos que te mencioné. Te doy $5 por cada amigo al que le mandes mensaje y $200 por cada uno que instale un sistema: ${l}`}
+};
 const $ = id => document.getElementById(id);
 const base = location.href.replace(/send\.html.*$/,"");
-function link(){ const n=($("cn").value.trim().split(/\s+/)[0]||"").replace(/[^A-Za-z'-]/g,""); return base + "?" + encodeURIComponent(n) + (type==="up" ? "-up" : ""); }
-function draft(){ const n=$("cn").value.trim().split(/\s+/)[0]||"there"; return `Hey ${n}, it's Andrew. Thanks again for going with Vivint! Here's that referral page I mentioned. $5 for every friend you text and $200 for every one who gets a system: ${link()}`; }
+function link(){ const n=($("cn").value.trim().split(/\s+/)[0]||"").replace(/[^A-Za-z'-]/g,""); return base + "?" + encodeURIComponent(n) + (type==="up" ? "-up" : "") + (lang==="es" ? "-es" : ""); }
+function draft(){ const n=$("cn").value.trim().split(/\s+/)[0]||T[lang].there; return T[lang].text(n, link()); }
+function applyLang(){
+  const t=T[lang]; document.documentElement.lang=lang;
+  document.querySelectorAll("[data-t]").forEach(el=>{ el.textContent=t[el.dataset.t]; });
+  $("cn").placeholder=t.cnPh; const b=$("langBtn"); b.textContent=t.toggle; b.lang=t.toggleLang;
+}
 function render(){
   if(!edited) $("msg").value = draft();
   let d = $("cp").value.replace(/\D/g,""); if(d.length===10) d="1"+d;
@@ -62,8 +80,9 @@ $("cn").addEventListener("input", render); $("cp").addEventListener("input", ren
 $("msg").addEventListener("input", ()=>{ edited=true; render(); });
 function setT(t){ type=t; $("tn").setAttribute("aria-pressed",t==="new"); $("tu").setAttribute("aria-pressed",t==="up"); render(); }
 $("tn").onclick=()=>setT("new"); $("tu").onclick=()=>setT("up");
-$("copy").onclick=async()=>{ try{ await navigator.clipboard.writeText($("msg").value); $("toast").textContent="Copied."; }catch(e){ $("msg").select(); $("toast").textContent="Press and hold to copy."; } };
-render();
+$("copy").onclick=async()=>{ try{ await navigator.clipboard.writeText($("msg").value); $("toast").textContent=T[lang].copied; }catch(e){ $("msg").select(); $("toast").textContent=T[lang].hold; } };
+$("langBtn").onclick=()=>{ lang = lang==="es" ? "en" : "es"; try{ localStorage.setItem("sendLang", lang); }catch(e){} edited=false; applyLang(); render(); };
+applyLang(); render();
 </script>
 </body>
 </html>
